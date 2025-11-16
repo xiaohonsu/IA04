@@ -33,18 +33,12 @@ export default function SignUp() {
     mutationFn: (data: RegisterData) => registerUser(data),
     onSuccess: (data) => {
       console.log('Registration successful:', data);
-      
-      // Lưu thông tin user vào localStorage
-      localStorage.setItem('userEmail', data.user.email);
-      localStorage.setItem('isLoggedIn', 'true');
-      
+      // After successful registration, redirect to login page
       setShowSuccess(true);
       reset();
-      
-      // Redirect to dashboard after 2 seconds
       setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
+        navigate('/login');
+      }, 1500);
     },
   });
 

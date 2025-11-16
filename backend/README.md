@@ -25,6 +25,23 @@ npm run start:dev
 ## API Endpoints
 
 - `POST /user/register` - Register a new user
+ - `POST /auth/login` - Login with email/password -> returns { accessToken, refreshToken, user }
+ - `POST /auth/refresh` - Refresh tokens using { refreshToken } -> returns { accessToken, refreshToken }
+ - `POST /auth/logout` - Logout and invalidate refresh token using { refreshToken }
+
+## Environment variables (examples)
+
+Create `backend/.env` with:
+
+```
+MONGODB_URI=mongodb://localhost:27017/userdb
+PORT=3000
+FRONTEND_URL=http://localhost:5173
+JWT_ACCESS_SECRET=some_secret_for_access
+JWT_REFRESH_SECRET=some_secret_for_refresh
+JWT_ACCESS_EXPIRATION=15m
+JWT_REFRESH_EXPIRATION=7d
+```
 
 ## Technologies
 

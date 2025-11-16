@@ -60,4 +60,16 @@ export class UserService {
   async findByEmail(email: string): Promise<UserDocument | null> {
     return this.userModel.findOne({ email });
   }
+
+  async findById(id: string): Promise<UserDocument | null> {
+    return this.userModel.findById(id);
+  }
+
+  async setRefreshToken(userId: string, refreshToken: string): Promise<void> {
+    await this.userModel.findByIdAndUpdate(userId, { refreshToken });
+  }
+
+  async removeRefreshToken(userId: string): Promise<void> {
+    await this.userModel.findByIdAndUpdate(userId, { $unset: { refreshToken: 1 } });
+  }
 }

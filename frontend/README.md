@@ -17,6 +17,16 @@ cp .env.example .env
 # Update VITE_API_URL if backend is running on different port
 ```
 
+## Environment
+
+Create `.env` or `.env.local` with:
+
+```
+VITE_API_URL=http://localhost:3000
+```
+
+This project integrates JWT authentication endpoints at `/auth` (login/refresh/logout) on the backend. The frontend stores refresh tokens in localStorage and access tokens in memory.
+
 3. Start development server:
 ```bash
 npm run dev

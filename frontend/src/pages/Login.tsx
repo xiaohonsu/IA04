@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { CheckCircle2, Loader2 } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { login as loginApi } from '@/api/auth';
+import { useAuth } from '@/lib/AuthProvider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
@@ -16,6 +19,24 @@ export default function Login() {
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const auth = useAuth();
+  const mutation = useMutation({
+    mutationFn: (data: { email: string; password: string }) => loginApi(data),
+    onSuccess: (data) => {
+      // store tokens
+      auth.login(data.accessToken, data.refreshToken);
+      localStorage.setItem('userEmail', data.user.email);
+      setIsLoading(false);
+      setShowSuccess(true);
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1000);
+    },
+    onError: (err: any) => {
+      setIsLoading(false);
+      console.error('Login failed', err);
+    },
+  });
 
   const {
     register,
@@ -25,23 +46,7 @@ export default function Login() {
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
-    
-    // Simulate login (no backend logic as per requirements)
-    setTimeout(() => {
-      console.log('Login attempt:', data);
-      
-      // Lưu thông tin user vào localStorage
-      localStorage.setItem('userEmail', data.email);
-      localStorage.setItem('isLoggedIn', 'true');
-      
-      setIsLoading(false);
-      setShowSuccess(true);
-      
-      // Show success message and redirect to dashboard
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1500);
-    }, 1000);
+    mutation.mutate({ email: data.email, password: data.password });
   };
 
   return (

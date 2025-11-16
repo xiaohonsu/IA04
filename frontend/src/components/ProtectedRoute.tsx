@@ -1,14 +1,16 @@
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/lib/AuthProvider';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const { isAuthenticated, loading } = useAuth();
 
-  if (!isLoggedIn) {
-    // Nếu chưa đăng nhập, redirect về trang login
+  if (loading) return null; // or a spinner
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 

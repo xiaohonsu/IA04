@@ -2,20 +2,20 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { LogOut, User } from 'lucide-react';
+import { useAuth } from '@/lib/AuthProvider';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  
+  const auth = useAuth();
+
   // Lấy thông tin user từ localStorage (đã lưu khi login)
   const userEmail = localStorage.getItem('userEmail') || 'User';
 
   const handleLogout = () => {
-    // Xóa thông tin user khỏi localStorage
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('isLoggedIn');
-    
-    // Redirect về trang login
-    navigate('/login');
+    // Call auth logout which will clear tokens and server refresh token
+    auth.logout().then(() => {
+      navigate('/login');
+    });
   };
 
   return (
