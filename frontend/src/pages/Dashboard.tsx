@@ -1,15 +1,22 @@
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/Card';
 import { Button } from '@/components/Button';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Loader2 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthProvider';
+import { getUserProfile } from '@/api/auth';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const auth = useAuth();
 
-  // Lấy thông tin user từ localStorage (đã lưu khi login)
-  const userEmail = localStorage.getItem('userEmail') || 'User';
+  // Fetch user profile using React Query
+  const { data: userProfile, isLoading, isError } = useQuery({
+    queryKey: ['user', 'profile'],
+    queryFn: getUserProfile,
+    enabled: auth.isAuthenticated, // Only fetch when authenticated
+    retry: 1,
+  });
 
   const handleLogout = () => {
     // Call auth logout which will clear tokens and server refresh token
@@ -17,6 +24,32 @@ export default function Dashboard() {
       navigate('/login');
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Card className="w-full max-w-md">
+          <CardContent className="flex items-center justify-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-3 text-lg">Loading profile...</span>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (isError || !userProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <p className="text-red-600 mb-4">Failed to load profile</p>
+            <Button onClick={() => navigate('/login')}>Back to Login</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -36,7 +69,7 @@ export default function Dashboard() {
           {/* Thông báo chào mừng */}
           <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
             <h2 className="text-2xl font-semibold text-green-800 mb-2">
-              Xin chào, {userEmail}!
+              Xin chào, {userProfile.email}!
             </h2>
             <p className="text-green-600">
               Chào mừng bạn đến với hệ thống User Registration
@@ -47,16 +80,20 @@ export default function Dashboard() {
           <div className="space-y-3">
             <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
               <span className="font-medium text-secondary-foreground">Email:</span>
-              <span className="text-muted-foreground">{userEmail}</span>
+              <span className="text-muted-foreground">{userProfile.email}</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
+              <span className="font-medium text-secondary-foreground">User ID:</span>
+              <span className="text-muted-foreground font-mono text-sm">{userProfile.id}</span>
             </div>
             <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
               <span className="font-medium text-secondary-foreground">Status:</span>
               <span className="text-green-600 font-medium">Active</span>
             </div>
             <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-              <span className="font-medium text-secondary-foreground">Login Time:</span>
+              <span className="font-medium text-secondary-foreground">Account Created:</span>
               <span className="text-muted-foreground">
-                {new Date().toLocaleString('vi-VN')}
+                {new Date(userProfile.createdAt).toLocaleString('vi-VN')}
               </span>
             </div>
           </div>

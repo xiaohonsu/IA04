@@ -43,4 +43,15 @@ export const logout = async (refreshToken: string) => {
   return api.post('/auth/logout', { refreshToken });
 };
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  createdAt: string;
+}
+
+export const getUserProfile = async (): Promise<UserProfile> => {
+  const response = await api.get<UserProfile>('/user/me');
+  return response.data;
+};
+
 export default api;
